@@ -1,0 +1,403 @@
+#!/usr/bin/env node
+
+/*
+ global module,
+ require,
+ process,
+ __dirname
+ */
+
+var async = require('async'),
+    nconf = require('nconf'),
+    fs = require('fs'),
+    path = require('path'),
+    url = require('url'),
+    winston = require('winston'),
+    moment = require('moment'),
+    colors = require('colors'),
+    cluster = require('cluster');
+
+var File = require('../src/libs/file');
+
+// retrieve arguments, slice off node executable and script name
+var args = process.argv.slice(2);
+
+var runningInstance = true,
+    runningInstancePidFile,
+    runningInstancePid,
+    failedStartupAttempts = [];
+
+// register helpers
+require('../src/libs/helper.js').registerHelpers();
+
+// load config
+nconf.file({ file: path.resolve(path.join(__dirname, '../config.json')) });
+
+// store the apps base path
+nconf.set('path', path.resolve(__dirname + '/..'));
+
+// setup the logger
+setupLogger();
+
+// try to retrieve the PID of the running process from its lock file. If it does not exist,
+// we will assume there is no running instance yet.
+try {
+  runningInstancePidFile = fs.readFileSync('./pidfile', 'utf-8');
+  runningInstancePid = parseInt(runningInstancePidFile, 10);
+}
+catch (error) {
+  runningInstance = false;
+}
+
+/**
+ * register process event handlers
+ */
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
+process.on('SIGUSR2', reload);
+process.on('uncaughtException', exceptionHandler);
+process.on('message', function (message) {
+  switch (message.type) {
+    case 'shutdown':
+      shutdown(0);
+      break;
+  }
+});
+
+/**
+ * Parse arguments
+ */
+if (cluster.isMaster) {
+  switch (args[ 0 ]) {
+  /**
+   * Stop:
+   * If an instance is currently running, kill it and exit afterwards.
+   */
+    case 'stop':
+      if (! runningInstance) {
+        winston.error('App is not running.');
+        process.exit(1);
+      } else {
+        process.kill(runningInstancePid, 'SIGTERM');
+        process.exit(0);
+      }
+      break;
+
+    case 'reload':
+      if (! runningInstance) {
+        winston.error('App is not running.');
+        process.exit(1);
+      } else {
+        reload()
+      }
+
+  /**
+   * Restart:
+   * If an instance is currently running, kill it and start a new one
+   */
+    case 'restart':
+      if (! runningInstance) {
+        winston.error('App is not running.');
+        process.exit(1);
+      } else {
+        process.kill(runningInstancePid, 'SIGTERM');
+        startMaster();
+      }
+      break;
+
+
+  /**
+   * compile-assets:
+   * Compiles SCSS and templates, concatenates and minifies JS.
+   * Exits the process after finish.
+   */
+    case 'compile-assets':
+      prepareAssets();
+      process.exit(0);
+      break;
+
+
+
+  /**
+   * Starts the app in development mode with logging to STDOUT enabled
+   */
+    case 'debug':
+      nconf.set('environment', 'development');
+      nconf.set('logging:silent', 'false');
+
+      // set up logger again
+      setupLogger();
+      winston.info('Started in development mode.');
+
+
+      // note: fall-through is intentional to avoid code repetition
+
+  /**
+   * Start:
+   * If no instance is currently running, start up normally
+   */
+    case 'start':
+    default:
+      if (runningInstance) {
+        winston.error('App is still running.');
+        process.exit(1);
+      } else {
+        startMaster();
+      }
+  }
+} else {
+  /**
+   * if the current process is a worker, the actual webserver is started
+   */
+  startWorker();
+}
+
+
+/**
+ * starts the master process
+ */
+function startMaster() {
+  // write lock file
+  fs.writeFileSync('./pidfile', process.pid);
+
+  winston.info('Golden Deals v%s, Copyright (C) 2016 Golden Deals GmbH', nconf.get('version'));
+  winston.info('Developed by Moritz Friedrich (MoritzFriedrich.com).');
+  winston.info('This program comes with ABSOLUTELY NO WARRANTY.');
+  winston.info('It is free software, and you are welcome to redistribute it under certain conditions.');
+  winston.info('');
+  winston.info('[cluster]'.white + ' Started app with PID %s', process.pid.toString().bold);
+
+  // prepare the assets
+  prepareAssets();
+
+  var numCPUs = (nconf.get('workers') ? nconf.get('workers') : require('os').cpus().length);
+
+  var ports = nconf.get('ports');
+
+  if (numCPUs > ports.length) {
+    winston.error('[cluster]'.white + ' Not enough ports given. Make sure to revise your configuration!');
+    numCPUs = ports.length;
+  }
+
+  if (numCPUs < ports.length) {
+    winston.error('[cluster]'.white + ' Too many ports given. This server only has ' + numCPUs + ' available.');
+    ports = ports.slice(0, numCPUs);
+  }
+
+  for (var i = 0; i < numCPUs; i ++) {
+    forkWorker(ports[i]);
+  }
+
+  cluster.on('online', function (worker) {
+    winston.info('[cluster]'.white + ' Worker ' + worker.process.pid.toString().bold + ' is online');
+  });
+
+  cluster.on('exit', function (worker, code) {
+    if (failedStartupAttempts.length > 9 && failedStartupAttempts[ failedStartupAttempts.length - 1 ] > (Date.now()) - 10000) {
+      winston.error('[cluster]'.white + ' Ten failed startup attempts in the last ten seconds. Exiting...');
+      shutdown(1);
+    }
+
+    winston.error('[cluster]'.white + ' Worker ' + worker.process.pid.toString().bold + ' died with code ' + code);
+    winston.info('[cluster]'.white + ' Starting a new worker on port ' + worker.port);
+
+    forkWorker(worker.port);
+    failedStartupAttempts.push(Date.now());
+  });
+}
+
+
+function forkWorker(port) {
+  // fork with port readable for worker
+  var worker = cluster.fork({
+    port: port
+  });
+
+  // store port readable for master
+  worker.port = port;
+}
+
+
+/**
+ * starts a worker process
+ */
+function startWorker() {
+  winston.info('[cluster]'.white + ' Spawned worker process with PID %s', process.pid.toString().bold);
+  var webserver = require('../src/webserver'),
+      sockets = require('../src/socket.io');
+
+  sockets.initialize(webserver.server);
+  webserver.listen(process.env.port);
+}
+
+
+/**
+ * Shuts the app down
+ *
+ * @param {number} [code]  an optional exit code
+ * @returns {number}       the exit code to return to the shell
+ */
+function shutdown(code) {
+  if (code > 0) {
+    winston.error('[cluster]'.white + '  Shutting down process ' + process.pid.toString().bold + ' due to an error.');
+  } else {
+    winston.info('[cluster]'.white + '  Shutting down process ' + process.pid.toString().bold + ' gracefully.');
+  }
+  // remove lock file
+  try {
+    fs.unlinkSync('./pidfile');
+  }
+  catch (e) {
+  }
+
+  return process.exit(code || 0);
+}
+
+
+/**
+ * Formats and logs critical exceptions to STDOUT before shutting down
+ *
+ * @param {Error} error  the exception object
+ * @returns void
+ */
+function exceptionHandler(error) {
+  var path = nconf.get('path'),
+      stack = error.stack.toString().split(path).join(''),
+      origin;
+
+  try {
+    origin = error.stack.match((new RegExp(path.replace(/\//g, '\\/') + '\/(.*)+:([0-9]+):([0-9]+)'))).slice(1);
+  }
+  catch (e) {
+    origin = [ '[module internal]', '', '' ];
+  }
+
+  var file = origin[ 0 ].split(path).join('') + (origin[ 0 ].indexOf('(') !== - 1 ? ')' : ''),
+      line = origin[ 1 ];
+
+  console.error('');
+  console.error("Critical ".bold.white + (error.hasOwnProperty('name') ? error.name : 'Error').bold.white);
+  console.error(error.message.bgRed.white + "\n");
+  console.error('Origin'.bold.white);
+  console.error(file.bgRed.white + ' on line '.bgRed.white + line.bgRed.white + "\n");
+  console.error('Trace'.bold.white);
+  console.error(stack.red + "\n");
+  shutdown(1);
+}
+
+
+/**
+ * Restarts all workers
+ *
+ * @returns void
+ */
+function restart() {
+  var workers = [],
+      id;
+
+  for (id in cluster.workers) {
+    if (! cluster.workers.hasOwnProperty(id)) continue;
+
+    workers.push(id);
+  }
+
+  workers.forEach(function (id) {
+    winston.info('[cluster]'.white + ' Restarting worker with PID %s', cluster.workers[ id ].process.pid.toString().bold);
+    cluster.workers[ id ].send({
+      text: 'shutdown',
+      from: 'master'
+    });
+  });
+}
+
+
+function reload() {
+  // delete require cache
+  /*
+  Object.keys(require.cache).forEach(function (key) {
+    delete require.cache[ key ];
+  });
+  */
+  reloadViews();
+
+  // prepare the assets
+  prepareAssets();
+}
+
+
+/**
+ * Configures Winston Logger
+ */
+function setupLogger() {
+  winston.remove(winston.transports.Console);
+  winston.add(winston.transports.Console, {
+    timestamp:   function () {
+      return moment().format('D.mm.YYYY @ HH:mm:ss:SSS');
+    },
+    prettyPrint: true,
+    colorize:    (nconf.get('logging:silent') === false),
+    level:       (nconf.get('environment') === 'development' ? 'silly' : 'info')
+  });
+
+  winston.add(winston.transports.File, {
+    filename:    'logs/output.log',
+    colorize:    false,
+    timestamp:   true,
+    maxsize:     1000000,
+    maxFiles:    10,
+    json:        false,
+    prettyPrint: true,
+    showLevel:   true,
+    tailable:    true,
+    level:       'silly'
+  });
+}
+
+/**
+ *
+ */
+function prepareAssets() {
+  var templates = require('../src/libs/templates'),
+      stylesheets = require('../src/libs/stylesheets'),
+      javascripts = require('../src/libs/javascripts');
+
+  // compile templates
+  templates.compile();
+
+  // compile SASS files to CSS
+  stylesheets.compile();
+
+  // Skip CSS minification if debug mode is enabled
+  if (nconf.get('assets:options:skipCSSMinification') === false) {
+
+    // minify CSS files
+    stylesheets.minify();
+  }
+
+  // concatenate client JS
+  javascripts.concatenate();
+
+  if (nconf.get('assets:options:skipJSMinification') === false) {
+
+    // minify client JS
+    javascripts.minify();
+  }
+
+  reloadViews();
+}
+
+
+/**
+ * reload all view files
+ */
+function reloadViews() {
+  winston.info('[cluster]'.white + ' Reloading all views');
+  File.readDirectoryRecursively('src/views', function(error, viewFiles) {
+    if (error) throw new Error('Directory "src/views" could not be read.', error.fileName, error.lineNumber);
+
+
+    for (var i = 0; i < viewFiles.length; i++) {
+      delete require.cache[require.resolve(viewFiles[i])];
+    }
+  });
+}

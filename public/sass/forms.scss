@@ -1,0 +1,53 @@
+@import "brand";
+
+form {
+  position: relative;
+}
+
+input {
+  -webkit-appearance: none;
+  width: 100%;
+  margin: 2px 5px;
+  padding: 8px 16px;
+  border: 1px solid $color-main;
+  border-radius: $border-radius-small;
+  background: rgb(25,25,25);
+  color: #fff;
+  font-size: 1.2rem;
+}
+
+input::-webkit-input-placeholder {
+  color: #fff;
+}
+
+input:focus {
+  outline: 0;
+}
+
+input:focus::-webkit-input-placeholder {
+  color: transparent
+}
+
+input[type=checkbox] {
+  -webkit-appearance: checkbox;
+}
+
+button,
+.button,
+input[type=submit],
+input[type=button] {
+  padding: 8px 16px;
+  border: 0;
+  border-radius: $border-radius-small;
+  background-color: $color-main;
+  color: #000;
+  font-size: 1.15rem;
+  font-weight: 300;
+  box-shadow: inset 0 -15px 15px -5px rgba(0, 0, 0, .15);
+  transition: box-shadow .2s;
+
+  &:hover {
+    box-shadow: inset 0 15px 15px -5px rgba(0, 0, 0, .1);
+    color: #000;
+  }
+}

@@ -1,0 +1,203 @@
+@import "brand";
+
+.user-profile {
+  .profile-header {
+    padding: 20px 0 70px;
+
+    h1 {
+      float: left;
+      margin: 20px 0;
+      text-align: right;
+    }
+
+    .toolbar {
+      float: right;
+      margin: 20px 0;
+    }
+
+    &::after {
+      content: '';
+      clear: both;
+      display: block;
+    }
+  }
+
+  .tile.info {
+    .profile-picture {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      margin: -75px auto 20px;
+      border: 1px solid $color-main;
+      border-radius: 50px;
+      overflow: hidden;
+
+      img, .preview-container {
+        width: 100%;
+        height: auto;
+      }
+    }
+  }
+
+  .tile.connection-data {
+    table {
+      width: 100%;
+      color: #fff;
+      font-size: 12px;
+
+      & + table {
+        margin-top: 20px;
+
+        tr:first-child {
+          th,
+          td {
+            padding-top: 20px;
+            border-top: 1px solid $color-main;
+          }
+        }
+      }
+
+      tr > th {
+        text-align: left;
+      }
+
+      tr > td:last-child {
+        font-family: 'Source Code Pro', monospace;
+      }
+    }
+  }
+
+  .grid {
+    .tile{
+      display: inline-block;
+      margin: 5px;
+      padding: 20px;
+
+      border: 1px solid $color-main;
+      border-radius: 4px;
+
+      background: rgb(25,25,25);
+
+      &-1-1 {
+        width: calc(100% - 40px);
+      }
+
+      &-1-2 {
+        width: calc(50% - 50px);
+      }
+
+      &-1-3 {
+        width: calc(100% / 3 - 50px);
+      }
+
+      &-1-4 {
+        width: calc(25% - 50px);
+      }
+
+      &-2-3 {
+        width: calc(100% * 2/3 - 50px);
+      }
+
+      @media screen and (max-width: 970px) {
+        width: calc(50% - 40px);
+      }
+
+      @media screen and (max-width: 630px) {
+        width: calc(100% - 50px);
+      }
+
+      h3 {
+        margin: 0 0 20px;
+      }
+    }
+  }
+}
+
+form.profile {
+  margin: 0;
+  font-size: 14px;
+
+  #profileImage {
+    width: 0;
+    height: 0;
+    opacity: 0;
+  }
+
+  .upload-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+
+    background-color: rgba(0,0,0,.5);
+    background-image: url(/images/icons/upload.svg);
+    background-size: 50px 50px;
+    background-repeat: no-repeat;
+    background-position: center center;
+
+    opacity: 0;
+    transition: opacity .15s;
+  }
+
+  &.enabled {
+    .upload-overlay {
+      opacity: 1;
+      cursor: pointer;
+    }
+  }
+
+  label {
+    display: block;
+    margin: 20px 0 10px;
+  }
+
+  input {
+    width: calc(100% - 8px);
+    padding: 4px 8px;
+
+    &:disabled {
+      border: 1px solid transparent;
+    }
+  }
+
+  .save-profile {
+    margin: 20px 5px 0;
+  }
+}
+
+/**
+ * Registration and login forms
+ */
+form.register,
+form.login {
+  max-width: 302px;
+  margin: 0 auto;
+
+  .error-messages {
+    width: 100%;
+    margin: 5px 2px;
+
+    .message {
+      margin: 15px 0;
+      padding: 15px;
+      border: 1px solid rgba(0,0,0,.5);
+      border-radius: $border-radius-base;
+      color: #fff;
+      background: #B93B3B;
+    }
+  }
+
+  .recaptcha-container {
+    width: 100%;
+    height: 78px;
+    margin: 2px 5px 1px;
+    text-align: center;
+
+    .g-recaptcha {
+      display: inline-block;
+    }
+  }
+}
+

@@ -1,0 +1,63 @@
+@import "brand";
+
+.notification {
+  position:      fixed;
+  bottom:        30px;
+  left:          30px;
+
+  width:         auto;
+  height:        auto;
+  padding:       10px;
+
+  z-index:       10000;
+
+  border-radius: $border-radius-base;
+  box-shadow:    0 2px 10px rgba(0, 0, 0, .3);
+
+  &.info {
+    color:            #fff;
+    background-color: #1976d2;
+  }
+
+  &.success {
+    color:            #fff;
+    background-color: #88a65c;
+  }
+
+  &.warning {
+    color:            #fff;
+    background-color: #d2a042;
+  }
+
+  &.error {
+    color:            #fff;
+    background-color: #d24e51;
+  }
+
+  &.confirmation {
+    color:            #fff;
+    background-color: #1976d2;
+  }
+
+  .message {
+    line-height: 30px;
+    font-weight: 300;
+    padding-left: 10px;
+
+    &:only-child {
+      padding-right: 10px;
+    }
+  }
+
+  button.action {
+    background: none;
+    font-weight: 500;
+    margin-left: 10px;
+    text-transform: uppercase;
+    text-shadow: none;
+
+    &:hover {
+      background: rgba(255, 255, 255, .1);
+    }
+  }
+}

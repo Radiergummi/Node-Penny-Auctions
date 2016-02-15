@@ -1,0 +1,80 @@
+.auctions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.auctions .item {
+  position: relative;
+  width: 300px;
+  margin: 1rem;
+  border: 1px solid #c5993b;
+  border-radius: 5px;
+  background-color: #151515;
+  color: #c5993b;
+}
+
+.auctions .item header {
+  line-height: 3;
+  border-bottom: 1px solid #c5993b;
+}
+
+.auctions .item .product-name {
+  max-width: 100%;
+  margin: 0;
+  padding: 0 10px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.auctions .item .product-image {
+  width: 100%;
+  height: 200px;
+  border-bottom: 1px solid #c5993b;
+  overflow: hidden;
+}
+
+.auctions .item .product-image img {
+  width: 100%;
+  height: auto;
+}
+
+.auctions .item .meta,
+.auctions .item .bidding {
+  padding: 1rem;
+}
+
+.auctions .item .meta span {
+  display: inline-block;
+  vertical-align: middle;
+  width: calc(50% - 2px);
+}
+
+.auctions .item .meta .product-price {
+  font-size: 2rem;
+}
+
+.auctions .item .meta .product-time-left {
+  text-align: right;
+}
+
+.auctions .item .bidding {
+  text-align: center;
+}
+
+.auctions .item button.bid {
+  padding: 10px 30px;
+  border: 1px solid #000;
+  background-color: #c5993b;
+  color: #fff;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, .4);
+  font-size: 1.25rem;
+  font-weight: 100;
+  box-shadow: inset 0 -15px 15px -5px rgba(0, 0, 0, .15);
+  transition: box-shadow .2s
+}
+
+.auctions .item button.bid:hover {
+  box-shadow: inset 0 15px 15px -5px rgba(0, 0, 0, .1)
+}
