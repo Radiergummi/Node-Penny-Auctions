@@ -1,9 +1,9 @@
 {
   "version": "0.0.1",
-  "url": "http://beta.golden-deals.de",
+  "url": "http://localhost",
   "ports": [ 3001, 3002 ],
   "environment": "development",
-  "secret": "efj2389fheguyghf9wh3f9p8c2n3f7g23z9r83f9247fg39f7f92h89dhwdjfku",
+  "secret": "supersecretstring",
 
   "workers": 2,
 
@@ -44,7 +44,7 @@
   },
 
   "recaptcha": {
-    "public": "6Lcp0hYTAAAAAO2MDPaSttvrqqqi26frXMyDcqkF",
-    "secret": "6Lcp0hYTAAAAAA2fVJtruAqux6GoRf7RfvRcCk0b"
+    "public": "insert_public_key_here",
+    "secret": "insert_secret_here"
   }
 }
