@@ -96,6 +96,10 @@ a {
   color: #fff;
 }
 
+main[role=main] {
+  max-width: calc(100% - 2rem);
+}
+
 .site-footer {
   background: #fff;
   height:     initial;
@@ -200,13 +204,17 @@ main[role=main] {
   color: rgba(0, 0, 0, .87);
 }
 
-// users
-.user-list {
-  width:      100%;
+/**
+ * data table layout
+ *
+ * this class provides the styles for a table to display complex data sets
+ */
+.admin-table {
+  width:      auto;
+  margin: 0 auto;
   box-shadow: 0 0 0 1px #1976d2;
 
   thead {
-
     tr {
       color:         #fff;
       background:    #2196f3;

@@ -72,7 +72,6 @@ admin.items = function (req, res, next) {
     user:        userVariables(req),
     siteTitle:   'Artikel',
     itemsActive: 'active'
-
   };
 
   res.render('admin/items', vars);
@@ -80,12 +79,16 @@ admin.items = function (req, res, next) {
 
 
 admin.auctions = function (req, res, next) {
-  var vars = {
-    user:           userVariables(req),
-    siteTitle:      'Auktionen',
-    auctionsActive: 'active'
+  require('../auction').getAll(function(error, data) {
+    var vars = {
+      user:           userVariables(req),
+      siteTitle:      'Auktionen',
+      auctionsActive: 'active'
 
-  };
+    };
 
-  res.render('admin/auctions', vars);
+    vars.auctions = JSON.parse(JSON.stringify(data));
+
+    res.render('admin/auctions', vars);
+  });
 };

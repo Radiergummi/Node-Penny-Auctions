@@ -53,3 +53,20 @@ AuctionSocket.bid = function(socket, data, callback) {
     }
   });
 };
+
+
+AuctionSocket.getCurrentBids = function(socket, data, callback) {
+  Auction.getById(data.id, function(error, auction) {
+    if (error) {
+      return callback(error);
+    }
+
+    if (! auction) {
+      return callback(new Error('This auction does not exist'));
+    }
+
+    console.log(auction.bids.length);
+
+    return callback(null, auction.bids.length);
+  });
+};

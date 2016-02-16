@@ -15,7 +15,7 @@ var Schema = mongoose.Schema,
 
 // define the schema for our user model
 var auctionSchema = mongoose.Schema({
-  item: ObjectId,
+  item: { type: ObjectId, ref: 'Item' },
 
   price: Number,
 

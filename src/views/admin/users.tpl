@@ -1,5 +1,5 @@
 <!-- IMPORT admin/partials/header.tpl -->
-<table class="user-list">
+<table class="user-list admin-table">
   <thead>
   <tr>
     <th class="index">Nummer</th>

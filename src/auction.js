@@ -27,7 +27,7 @@ Auction.getById = function(id, callback) {
 };
 
 Auction.getAll = function(callback) {
-  auctionModel.find({}, function(error, auctions) {
+  auctionModel.find({}).populate('item').exec(function(error, auctions) {
     if (error) return callback(error);
     if (! auctions) return callback(null, []);
 

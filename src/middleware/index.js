@@ -3,6 +3,8 @@
  require
  */
 
+'use strict';
+
 var fs      = require('fs'),
     path    = require('path'),
     nconf   = require('nconf'),
@@ -40,6 +42,9 @@ module.exports = function(app) {
 
   // set view engine
   app.set('view engine', nconf.get('views:templates:engine'));
+
+  // register template helpers
+  registerTemplateHelpers();
 
   // add JSON indenting
   app.set('json spaces', 2);
@@ -103,3 +108,12 @@ module.exports = function(app) {
 
   return middleware;
 };
+
+function registerTemplateHelpers() {
+  var moment = require('moment');
+  moment.locale('de');
+
+  templates.registerHelper('format_date_string', function(data) {
+    return moment(data).format('lll');
+  });
+}
