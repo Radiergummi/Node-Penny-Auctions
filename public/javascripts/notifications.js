@@ -104,14 +104,16 @@ Notifications.prototype.create = function (type, message, actions, options) {
   $('body').append(domNode);
   domNode.hide().fadeIn();
 
-  domNode.data('dismissTimer', setTimeout(function () {
-    domNode.fadeOut(200);
+  if (type !== 'confirmation') {
+    domNode.data('dismissTimer', setTimeout(function() {
+      domNode.fadeOut(200);
 
-    setTimeout(function () {
-      domNode.remove();
-      $(document).trigger('notifications:removed');
-    }, 200);
-  }, dismissAfter));
+      setTimeout(function() {
+        domNode.remove();
+        $(document).trigger('notifications:removed');
+      }, 200);
+    }, dismissAfter));
+  }
 
 
   /**
@@ -132,7 +134,9 @@ Notifications.prototype.create = function (type, message, actions, options) {
    * stop automatic removal if the mouse hovers over the notification
    */
   $(document).on('mouseenter', '.notification', function (event) {
-    clearTimeout($(this).data('dismissTimer'));
+    if (type !== 'confirmation') {
+      clearTimeout($(this).data('dismissTimer'));
+    }
   });
 
 
@@ -140,17 +144,19 @@ Notifications.prototype.create = function (type, message, actions, options) {
    * restart automatic removal if the mouse leaves the notification
    */
   $(document).on('mouseleave', '.notification', function (event) {
-    var domNode = $(this),
-        dismissTimeout = function () {
-          return setTimeout(function () {
-            domNode.fadeOut(200);
-            setTimeout(function () {
-              domNode.remove();
-              $(document).trigger('notifications:removed');
-            }, 200);
-          }, Notifications.options.dismissAfter)
-        };
-    $(this).data('dismissTimer', dismissTimeout(), Notifications.options.dismissAfter);
+    if (type !== 'confirmation') {
+      var domNode = $(this),
+          dismissTimeout = function () {
+            return setTimeout(function () {
+              domNode.fadeOut(200);
+              setTimeout(function () {
+                domNode.remove();
+                $(document).trigger('notifications:removed');
+              }, 200);
+            }, Notifications.options.dismissAfter)
+          };
+      $(this).data('dismissTimer', dismissTimeout(), Notifications.options.dismissAfter);
+    }
   });
 };
 

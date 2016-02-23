@@ -37,14 +37,14 @@ File.read = function (file, callback) {
   try {
     fs.readFile(file, function (error, data) {
       if (error) {
-        throw error;
+        return callback(error);
       }
 
-      return callback(data);
+      return callback(null, data);
     });
   }
   catch (error) {
-    throw error;
+    return callback(error);
   }
 };
 

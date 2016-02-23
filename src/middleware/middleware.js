@@ -76,6 +76,10 @@ middleware.uploadProfileImage = function(req, res, next) {
 };
 
 middleware.storeProfileImage = function(req, res, next) {
+  if (! req.file) {
+    return next();
+  }
+
   var filepath = nconf.get('path') + '/public/images/user/' + req.user._id + '.jpg';
 
   /**

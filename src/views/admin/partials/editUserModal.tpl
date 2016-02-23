@@ -1,4 +1,4 @@
-<div class="modal edit-user hidden">
+<div class="modal edit-user hidden" data-user-id="{_id}">
   <header>
     <h1>Benutzer bearbeiten</h1>
     <button class="icon-button close-modal" title="Schließen">
@@ -47,6 +47,9 @@
   <footer>
     <button class="save-user" data-user-id="{_id}">
       <span>Speichern</span> <i class="fa fa-save"></i>
+    </button>
+    <button class="delete-user danger" data-user-id="{_id}">
+      <span>Löschen</span> <i class="fa fa-trash"></i>
     </button>
   </footer>
 </div>

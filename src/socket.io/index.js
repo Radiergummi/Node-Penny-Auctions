@@ -168,7 +168,6 @@ function onMessage(socket, payload) {
   // each io message is expected to be named as "<controller>.<method>".
   var parts = eventName.toString().split('.'),
       namespace = parts[ 0 ];
-
   var methodToCall = parts.reduce(function (namespaces, method) {
         if (namespaces !== null && namespaces[ method ]) {
           return namespaces[ method ];

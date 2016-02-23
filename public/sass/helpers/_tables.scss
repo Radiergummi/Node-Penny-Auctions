@@ -1,25 +1,27 @@
 @import "../brand";
 
 @mixin roundedTable() {
-  border-radius: $border-radius-base;
+  @media (min-width: 992px) {
+    border-radius: $border-radius-base;
 
-  thead tr th {
-    &:first-child {
-      border-top-left-radius: $border-radius-base;
+    thead tr th {
+      &:first-child {
+        border-top-left-radius: $border-radius-base;
+      }
+
+      &:last-child {
+        border-top-right-radius: $border-radius-base;
+      }
     }
 
-    &:last-child {
-      border-top-right-radius: $border-radius-base;
-    }
-  }
+    tbody tr:last-child td {
+      &:first-child {
+        border-bottom-left-radius: $border-radius-base;
+      }
 
-  tbody tr:last-child td {
-    &:first-child {
-      border-bottom-left-radius: $border-radius-base;
-    }
-
-    &:last-child {
-      border-bottom-right-radius: $border-radius-base;
+      &:last-child {
+        border-bottom-right-radius: $border-radius-base;
+      }
     }
   }
 }

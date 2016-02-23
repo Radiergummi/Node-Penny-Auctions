@@ -8,7 +8,7 @@
 var helpers = require('./helpers');
 
 var admin = module.exports = {},
-    userVariables = function (req) {
+    userVariables = function(req) {
       var loggedIn = req.hasOwnProperty('user');
 
       if (loggedIn) {
@@ -25,7 +25,7 @@ var admin = module.exports = {},
     };
 
 
-admin.dashboard = function (req, res, next) {
+admin.dashboard = function(req, res, next) {
   var vars = {
     user:            userVariables(req),
     siteTitle:       'Dashboard',
@@ -36,7 +36,7 @@ admin.dashboard = function (req, res, next) {
 };
 
 
-admin.settings = function (req, res, next) {
+admin.settings = function(req, res, next) {
   var vars = {
     user:           userVariables(req),
     siteTitle:      'Einstellungen',
@@ -48,8 +48,8 @@ admin.settings = function (req, res, next) {
 };
 
 
-admin.users = function (req, res, next) {
-  require('../user').getAll(function (error, data) {
+admin.users = function(req, res, next) {
+  require('../user').getAll(function(error, data) {
     if (error) {
       return res.status(500).render('errors/admin');
     }
@@ -67,18 +67,22 @@ admin.users = function (req, res, next) {
 };
 
 
-admin.items = function (req, res, next) {
-  var vars = {
-    user:        userVariables(req),
-    siteTitle:   'Artikel',
-    itemsActive: 'active'
-  };
+admin.items = function(req, res, next) {
+  require('../item').getAll(function(error, data) {
+    var vars = {
+      user:        userVariables(req),
+      siteTitle:   'Artikel',
+      itemsActive: 'active'
+    };
 
-  res.render('admin/items', vars);
+    vars.items = JSON.parse(JSON.stringify(data));
+
+    res.render('admin/items', vars);
+  });
 };
 
 
-admin.auctions = function (req, res, next) {
+admin.auctions = function(req, res, next) {
   require('../auction').getAll(function(error, data) {
     var vars = {
       user:           userVariables(req),

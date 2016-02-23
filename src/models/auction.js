@@ -44,7 +44,11 @@ auctionSchema.methods.updateBids = function (userId, userTime, callback) {
      * @param next
      */
     function (next) {
-      settings.get('priceIncrementPerBid', function (value) {
+      settings.get('priceIncrementPerBid', function (error, value) {
+        if (error) {
+          return next(error);
+        }
+
         value = value || 1;
 
         auction.price = (auction.price + value);
@@ -62,7 +66,11 @@ auctionSchema.methods.updateBids = function (userId, userTime, callback) {
      * @param next
      */
     function (data, status, next) {
-      settings.get('timeIncrementPerBid', function (value) {
+      settings.get('timeIncrementPerBid', function (error, value) {
+        if (error) {
+          return next(error);
+        }
+
         value = value || 10;
 
         auction.endTime = new Date(auction.endTime.getTime() + (value * 1000));

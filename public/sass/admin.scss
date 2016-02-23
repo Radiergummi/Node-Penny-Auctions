@@ -14,6 +14,7 @@ button {
   background:  #2196f3;
   text-shadow: 1px 1px rgba(0, 0, 0, .4);
   box-shadow:  none;
+  border-bottom: 1px solid rgba(0,0,0,.2);
 
   i {
     margin-left: 5px;
@@ -28,12 +29,27 @@ button {
   &.icon-button {
     background: none;
     padding: 0;
+    border: 0;
     color: rgba(0,0,0,.45);
     text-shadow: none;
     transition: color .125s;
 
+    i {
+      margin: 0;
+    }
+
     &:hover {
       color: #000;
+    }
+  }
+
+  &.inverted {
+    color:       #2196f3;
+    background: #fff;
+    text-shadow: none;
+
+    &:hover {
+      background:  rgba(255,255,255,.85);
     }
   }
 }
@@ -98,6 +114,11 @@ a {
 
 main[role=main] {
   max-width: calc(100% - 2rem);
+
+  @media (max-width: 992px) {
+    max-width: 100%;
+    padding: 0;
+  }
 }
 
 .site-footer {
@@ -110,6 +131,10 @@ main[role=main] {
   background: #2196f3;
   color:      #fff;
 
+  @media (max-width: 735px) {
+    border-bottom: 5px solid #1976d2;
+  }
+
   .site-title {
     position:    absolute;
     left:        0;
@@ -120,12 +145,24 @@ main[role=main] {
     font-size:   4rem;
     color:       rgba(255, 255, 255, 0.95);
     text-shadow: 1px 1px 5px rgba(0, 0, 0, .35);
+
+    @media (max-width: 768px) {
+      top: 0;
+      bottom: initial;
+      padding: 0 10px;
+      font-size: 3rem;
+    }
   }
 
   .user {
     height:  initial;
     margin:  5px;
     padding: 5px;
+
+    @media (max-width: 632px) {
+      margin: 0;
+      position: absolute !important;
+    }
 
     .username {
       line-height: 40px;
@@ -174,14 +211,30 @@ main[role=main] {
     width:         100%;
     border-bottom: 5px solid #1976d2;
 
+    @media (max-width: 736px) {
+      top: 60px;
+      bottom: initial;
+      width: 50%;
+      border: 0;
+    }
+
     ul {
       text-align: left;
 
       li {
+        @media (max-width: 736px) {
+          width: 50%;
+          float: left;
+        }
+
         &.active {
           a {
             background:    #1976d2;
             border-radius: 3px 3px 0 0;
+
+            @media (max-width: 735px) {
+              border-radius: 0;
+            }
           }
         }
 
@@ -194,6 +247,11 @@ main[role=main] {
           background:    none;
           font-size:     1.2rem;
           font-weight:   300;
+
+          @media (max-width: 736px) {
+            padding: .5rem 0;
+            text-align: center;
+          }
         }
       }
     }
@@ -202,6 +260,7 @@ main[role=main] {
 
 main[role=main] {
   color: rgba(0, 0, 0, .87);
+  overflow-x: auto;
 }
 
 /**
@@ -213,6 +272,10 @@ main[role=main] {
   width:      auto;
   margin: 0 auto;
   box-shadow: 0 0 0 1px #1976d2;
+
+  @media (max-width: 992px) {
+    width: 100%;
+  }
 
   thead {
     tr {
@@ -245,7 +308,18 @@ main[role=main] {
       }
 
       td {
-        padding: 5px 7px;
+        padding:       5px 7px;
+        max-width:     400px;
+        overflow:      hidden;
+        text-overflow: ellipsis;
+
+        @media (max-width: 992px) {
+          max-width: 200px;
+        }
+
+        @media (max-width: 400px) {
+          max-width: 100px;
+        }
 
         .profile-picture {
           position:      relative;
@@ -304,12 +378,91 @@ main[role=main] {
         }
       }
     }
+  }
 
-    th.edit,
-    td.edit {
-      text-align: right;
+
+  th.email,
+  td.email,
+  th.manufacturer,
+  td.manufacturer {
+    @media (max-width: 700px) {
+      display: none;
+    }
+  }
+
+  th.edit,
+  td.edit {
+    text-align: right;
+
+    @media (max-width: 992px) {
+      button.edit {
+        .label {
+          display: none;
+        }
+
+        i {
+          margin: 0;
+          padding: 4px;
+
+          @media (max-width: 400px) {
+            padding: 0;
+          }
+        }
+      }
+    }
+  }
+
+  th.id,
+  td.id {
+    @media (max-width: 480px) {
+      display: none;
+    }
+  }
+
+  &.auction-list .id {
+    @media (max-width: 736px) {
+      display: none;
+    }
+  }
+
+  td.id {
+    position: relative;
+    min-width: 100px;
+    overflow-x: auto;
+
+    span {
+      @media (max-width: 992px) {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: block;
+        max-width: 100px;
+        margin: 8px 0;
+        padding: 3px 5px;
+        line-height: 28px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        border-radius: $border-radius-small;
+        transition: max-width .2s,
+                    background .1s .2s,
+                    box-shadow .2s;
+
+        &:hover {
+          max-width: 600px;
+          background: #fff;
+          box-shadow: 0 4px 25px rgba(0,0,0,.2);
+          transition: max-width .2s,
+                      background .012s 0s,
+                      box-shadow .2s;
+        }
+      }
     }
   }
 
   @include roundedTable;
+}
+
+button.danger {
+  background: rgb(210, 78, 81);
 }

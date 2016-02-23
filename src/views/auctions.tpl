@@ -9,7 +9,7 @@
        socket.emit('auction.bid', {
            id: $(this).parents('.component.item').attr('id'),
            localBidTime: Date.now()
-       });
+       }, function());
     });
 
     socket.on('auction.updateAuction', function(data) {

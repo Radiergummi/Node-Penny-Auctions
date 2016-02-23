@@ -65,8 +65,6 @@ AuctionSocket.getCurrentBids = function(socket, data, callback) {
       return callback(new Error('This auction does not exist'));
     }
 
-    console.log(auction.bids.length);
-
     return callback(null, auction.bids.length);
   });
 };

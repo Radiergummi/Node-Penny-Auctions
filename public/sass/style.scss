@@ -39,6 +39,7 @@ code {
 .dropdown {
   position: absolute;
   display: none;
+  top: 100%;
   left: 0;
   width: 100%;
   margin: 0;
@@ -83,6 +84,9 @@ code {
 }
 
 .site-header {
+  height: 60px;
+  border-bottom: 1px solid #c5993b;
+
   .create-account {
     position: absolute;
     top: 0;
@@ -92,17 +96,23 @@ code {
     padding: 1rem;
   }
 
+  .user-container {
+    float: right;
+  }
+
+  .notifications {
+    float: left;
+    border-left: 1px solid #c5993b;
+  }
+
   .user {
-    position: absolute;
-    top: 0;
-    right: 0;
-    height: 100%;
+    float: left;
+    border-left: 1px solid #c5993b;
+    min-width: 150px;
 
     .menu {
-      margin: 5px;
-      padding: 5px;
-      border-radius: $border-radius-small 25px $border-radius-small $border-radius-small;
-      text-align: right;
+      padding: 10px;
+      border-radius: 0 0 0 $border-radius-small;
       cursor: pointer;
       transition: background .15s;
 
@@ -112,10 +122,16 @@ code {
         .dropdown-arrow {
           opacity: 1;
         }
+
+        .dropdown {
+          border: 1px solid #C5993B;
+          border-top: 0;
+          border-right: 0;
+        }
       }
 
       .dropdown-arrow {
-        opacity: 0;
+        opacity: .8;
         vertical-align: middle;
         line-height: 40px;
         margin-left: 10px;
@@ -124,6 +140,9 @@ code {
       }
 
       .dropdown {
+        left: -1px;
+        border-radius: 0 0 0 $border-radius-small;
+        text-align: right;
         background: #281f0b;
 
         & > li a:hover {
@@ -150,20 +169,20 @@ code {
         height: auto;
       }
     }
-
-    .credits {
-      text-align: right;
-      padding: 0 10px;
-    }
   }
 
   .logo {
     text-align: center;
+    float: left;
+    height: 60px;
+    border-right: 1px solid #c5993b;
 
     img {
-      width: 400px;
+      width: auto;
       height: auto;
       max-width: 100%;
+      max-height: calc(100% - 20px);
+      padding: 10px;
     }
 
     figcaption {
@@ -174,6 +193,8 @@ code {
 
 .main-navigation {
   position: relative;
+  height: 100%;
+  float: left;
 
   ul {
     margin: 0;
@@ -185,21 +206,24 @@ code {
 
       a {
         display: block;
-        padding: 0.5rem 2rem;
-        background: #333;
+        line-height: 60px;
+        padding: 0 2rem;
         text-decoration: none;
         color: $color-main;
         text-shadow: -1px -1px #000;
-        box-shadow: inset 0 -15px 10px -5px rgba(0, 0, 0, .2);
 
         &:hover {
           background: #222;
           color: #ad842d;
         }
+
+        i {
+          margin: 0 10px 0 0;
+        }
       }
 
       & + li > a {
-        border-left: 1px solid #000;
+        border-left: 1px solid #c5993b;
       }
 
       &:first-child > a {

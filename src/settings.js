@@ -3,6 +3,8 @@
  require
  */
 
+'use strict';
+
 var mongoose = require('mongoose'),
     merge = require('merge');
 
@@ -56,9 +58,15 @@ function find(name, callback) {
  */
 Settings.get = function(name, callback) {
   find(name, function(error, data) {
-    if (error) return new Error(error);
+    if (error) {
+      return callback(error);
+    }
 
-    callback(data.value);
+    if (! data) {
+      return callback(new Error('Setting ' + name + ' does not exist'));
+    }
+
+    callback(null, data.value);
   });
 };
 
